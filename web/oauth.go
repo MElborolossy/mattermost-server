@@ -5,6 +5,7 @@ package web
 
 import (
 	"html"
+	"io"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -249,6 +250,9 @@ func completeOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	service := c.Params.Service
+	var body io.ReadCloser
+	var teamId string
+	var props map[string]string
 
 	oauthError := r.URL.Query().Get("error")
 	if oauthError == "access_denied" {
