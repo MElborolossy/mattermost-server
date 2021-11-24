@@ -1102,4 +1102,5 @@ type AppIface interface {
 	VerifyUserEmail(userID, email string) *model.AppError
 	ViewChannel(view *model.ChannelView, userID string, currentSessionId string, collapsedThreadsSupported bool) (map[string]int64, *model.AppError)
 	WriteFile(fr io.Reader, path string) (int64, *model.AppError)
+	TFAuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, signedAttempt string) (io.ReadCloser, string, map[string]string, *model.User, *model.AppError)
 }

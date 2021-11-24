@@ -768,6 +768,10 @@ func (a *OpenTracingAppLayer) AuthorizeOAuthUser(w http.ResponseWriter, r *http.
 	return resultVar0, resultVar1, resultVar2, resultVar3, resultVar4
 }
 
+func (a *OpenTracingAppLayer) TFAuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, signedAttempt string) (io.ReadCloser, string, map[string]string, *model.User, *model.AppError) {
+	return a.AuthorizeOAuthUser(w, r, service, signedAttempt, "", "")
+}
+
 func (a *OpenTracingAppLayer) AutocompleteChannels(teamID string, term string) (*model.ChannelList, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.AutocompleteChannels")

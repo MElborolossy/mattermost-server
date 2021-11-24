@@ -253,31 +253,37 @@ func completeOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 	var body io.ReadCloser
 	var teamId string
 	var props map[string]string
+	var tokenUser *model.User
+	var err *model.AppError
 
-	oauthError := r.URL.Query().Get("error")
-	if oauthError == "access_denied" {
-		utils.RenderWebError(c.App.Config(), w, r, http.StatusTemporaryRedirect, url.Values{
-			"type":    []string{"oauth_access_denied"},
-			"service": []string{strings.Title(service)},
-		}, c.App.AsymmetricSigningKey())
-		return
+	if service == model.SERVICE_TFCONNECT {
+		signedAttempt := r.URL.Query().Get("signedAttempt")
+		body, teamId, props, tokenUser, err = c.App.TFAuthorizeOAuthUser(w, r, service, signedAttempt)
+	} else {
+		oauthError := r.URL.Query().Get("error")
+		if oauthError == "access_denied" {
+			utils.RenderWebError(c.App.Config(), w, r, http.StatusTemporaryRedirect, url.Values{
+				"type":    []string{"oauth_access_denied"},
+				"service": []string{strings.Title(service)},
+			}, c.App.AsymmetricSigningKey())
+			return
+		}
+
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			utils.RenderWebError(c.App.Config(), w, r, http.StatusTemporaryRedirect, url.Values{
+				"type":    []string{"oauth_missing_code"},
+				"service": []string{strings.Title(service)},
+			}, c.App.AsymmetricSigningKey())
+			return
+		}
+
+		state := r.URL.Query().Get("state")
+
+		uri := c.GetSiteURLHeader() + "/signup/" + service + "/complete"
+
+		body, teamId, props, tokenUser, err = c.App.AuthorizeOAuthUser(w, r, service, code, state, uri)
 	}
-
-	code := r.URL.Query().Get("code")
-	if code == "" {
-		utils.RenderWebError(c.App.Config(), w, r, http.StatusTemporaryRedirect, url.Values{
-			"type":    []string{"oauth_missing_code"},
-			"service": []string{strings.Title(service)},
-		}, c.App.AsymmetricSigningKey())
-		return
-	}
-
-	state := r.URL.Query().Get("state")
-
-	uri := c.GetSiteURLHeader() + "/signup/" + service + "/complete"
-
-	body, teamId, props, tokenUser, err := c.App.AuthorizeOAuthUser(w, r, service, code, state, uri)
-
 	action := ""
 	hasRedirectURL := false
 	isMobile := false
