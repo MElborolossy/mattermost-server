@@ -356,6 +356,10 @@ func completeOAuth(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if service == model.SERVICE_TFCONNECT {
+		redirectURL = c.GetSiteURLHeader() + "/"
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }

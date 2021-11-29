@@ -810,11 +810,6 @@ func (a *App) GetAuthorizationCode(w http.ResponseWriter, r *http.Request, servi
 }
 
 func (a *App) TFAuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, signedAttempt string) (io.ReadCloser, string, map[string]string, *model.User, *model.AppError) {
-	// provider, e := a.getSSOProvider(service)
-	// if e != nil {
-	// 	return nil, "", nil, nil, e
-	// }
-
 	cookie, cookieErr := r.Cookie(CookieState)
 	if cookieErr != nil {
 		return nil, "", nil, nil, model.NewAppError("TFAuthorizeOAuthUser", "Failed to read cookie, make sure your browser allows cookies for this website", nil, "Failed to read cookie, make sure your browser allows cookies for this website", http.StatusNotImplemented)
@@ -852,32 +847,6 @@ func (a *App) TFAuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, servi
 	stateStr := string(b)
 	stateProps := model.MapFromJson(strings.NewReader(stateStr))
 	teamId := stateProps["team_id"]
-
-	// var buf bytes.Buffer
-	// tee := io.TeeReader(resp.Body, &buf)
-	// ar := model.AccessResponseFromJson(tee)
-	// if ar == nil || resp.StatusCode != http.StatusOK {
-	// 	return nil, "", stateProps, nil, model.NewAppError("AuthorizeOAuthUser", "api.user.authorize_oauth_user.bad_response.app_error", nil, fmt.Sprintf("response_body=%s, status_code=%d", buf.String(), resp.StatusCode), http.StatusInternalServerError)
-	// }
-
-	// if strings.ToLower(ar.TokenType) != model.ACCESS_TOKEN_TYPE {
-	// 	return nil, "", stateProps, nil, model.NewAppError("AuthorizeOAuthUser", "api.user.authorize_oauth_user.bad_token.app_error", nil, "token_type="+ar.TokenType+", response_body="+buf.String(), http.StatusInternalServerError)
-	// }
-
-	// if ar.AccessToken == "" {
-	// 	return nil, "", stateProps, nil, model.NewAppError("AuthorizeOAuthUser", "api.user.authorize_oauth_user.missing.app_error", nil, "response_body="+buf.String(), http.StatusInternalServerError)
-	// }
-
-	// p = url.Values{}
-	// p.Set("access_token", ar.AccessToken)
-
-	// var userFromToken *model.User
-	// if ar.IdToken != "" {
-	// 	userFromToken, err = provider.GetUserFromIdToken(ar.IdToken)
-	// 	if err != nil {
-	// 		return nil, "", stateProps, nil, model.NewAppError("AuthorizeOAuthUser", "api.user.authorize_oauth_user.token_failed.app_error", nil, err.Error(), http.StatusInternalServerError)
-	// 	}
-	// }
 
 	return resp.Body, teamId, stateProps, nil, nil
 }
